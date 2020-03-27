@@ -1,17 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import { Formik } from "formik";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
+import ListGroup from "react-bootstrap/ListGroup";
 
 const App = () => {
+  const [orders, setOrders] = useState([]);
   return (
     <Container fluid>
       <Row>
         <Col>
-          <h1>Préparation des commandes</h1>
+          <h1>Créer une commande</h1>
           <Formik
             initialValues={{
               email: "test@test.fr",
@@ -19,7 +21,7 @@ const App = () => {
               lastName: "Otto",
             }}
             onSubmit={async (values) => {
-              let data = await (
+              await (
                 await fetch("/form", {
                   method: "POST",
                   headers: {
@@ -29,7 +31,8 @@ const App = () => {
                   body: JSON.stringify(values),
                 })
               ).json();
-              console.log(data);
+              let data = await (await fetch("/orders")).json();
+              setOrders(data);
             }}
           >
             {({ handleSubmit, values, handleChange }) => {
@@ -73,7 +76,14 @@ const App = () => {
             }}
           </Formik>
         </Col>
-        <Col>2 of 2</Col>
+        <Col>
+          <h1>Liste des commandes</h1>
+          <ListGroup>
+            {orders.map(({ key, order }) => {
+              return <ListGroup.Item key={key}>{order.email}</ListGroup.Item>;
+            })}
+          </ListGroup>
+        </Col>
       </Row>
     </Container>
   );

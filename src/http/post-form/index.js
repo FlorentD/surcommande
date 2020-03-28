@@ -1,3 +1,5 @@
+let map = require("lodash/fp/map");
+console.log(map);
 let arc = require("@architect/functions");
 let data = require("@begin/data");
 let table = "orders";

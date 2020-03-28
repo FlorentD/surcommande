@@ -1,0 +1,8 @@
+{
+  "name": "post-form",
+  "version": "1.0.0",
+  "dependencies": {
+    "@architect/functions": "^3.8.1",
+    "lodash": "^4.17.15"
+  }
+}

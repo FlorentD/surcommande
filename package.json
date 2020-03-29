@@ -1,7 +1,7 @@
 {
-  "name": "begin-app",
-  "description": "Begin Create React App + API",
-  "version": "0.0.0",
+  "name": "surcommande-app",
+  "description": "create and manage orders",
+  "version": "1.0.0",
   "proxy": "http://localhost:3333",
   "dependencies": {
     "@material-ui/core": "^4.9.7",

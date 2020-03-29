@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Formik } from "formik";
+import * as Yup from "yup";
 import Grid from "@material-ui/core/Grid";
 import Container from "@material-ui/core/Container";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
@@ -13,6 +14,7 @@ import Divider from "@material-ui/core/Divider";
 import Box from "@material-ui/core/Box";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
+import Alert from "@material-ui/lab/Alert";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import TotalOrder from "./TotalOrder";
 import Resume from "./Resume";
@@ -54,6 +56,18 @@ const App = () => {
                   lastName: "",
                   cartType: "",
                 }}
+                validationSchema={Yup.object().shape({
+                  firstName: Yup.string().required("Le Prénom est requis"),
+                  lastName: Yup.string()
+                    .min(2, "Too Short!")
+                    .required("Le Nom est requis"),
+                  email: Yup.string()
+                    .email(`L'email semble invalide`)
+                    .required(`L'email est requis`),
+                  cartType: Yup.string().required(
+                    "N'oubliez pas de sélectionner un panier"
+                  ),
+                })}
                 onSubmit={async (values) => {
                   setAddLoading(true);
                   try {
@@ -75,7 +89,7 @@ const App = () => {
                   }
                 }}
               >
-                {({ handleSubmit, values, handleChange }) => {
+                {({ handleSubmit, values, handleChange, errors, touched }) => {
                   console.log(values);
                   return (
                     <form noValidate onSubmit={handleSubmit}>
@@ -88,6 +102,8 @@ const App = () => {
                             size="large"
                             variant="outlined"
                             fullWidth
+                            error={touched.firstName && errors.firstName}
+                            helperText={errors.firstName}
                             onChange={handleChange}
                           />
                         </Grid>
@@ -99,6 +115,8 @@ const App = () => {
                             size="large"
                             variant="outlined"
                             fullWidth
+                            error={touched.lastName && errors.lastName}
+                            helperText={errors.lastName}
                             onChange={handleChange}
                           />
                         </Grid>
@@ -111,6 +129,8 @@ const App = () => {
                             size="large"
                             variant="outlined"
                             fullWidth
+                            error={touched.email && errors.email}
+                            helperText={errors.email}
                             onChange={handleChange}
                           />
                         </Grid>
@@ -149,6 +169,13 @@ const App = () => {
                                 />
                               </Grid>
                             </Grid>
+                            {errors.cartType && touched.cartType && (
+                              <Box mb={2}>
+                                <Alert severity="warning">
+                                  {errors.cartType}
+                                </Alert>
+                              </Box>
+                            )}
                           </RadioGroup>
                         </Grid>
                         <Grid xs={12}>

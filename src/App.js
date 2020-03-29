@@ -41,10 +41,10 @@ const App = () => {
   return (
     <Container>
       <Grid container spacing={8}>
-        <Grid item xs={6}>
+        <Grid item xs={12} md={6}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
-              <Typography variant="h3">Créer une commande</Typography>
+              <Typography variant="h3">Créer un panier</Typography>
             </Grid>
             <Grid item xs={12}>
               <Formik
@@ -189,8 +189,8 @@ const App = () => {
             </Grid>
           </Grid>
         </Grid>
-        <Grid item xs={6}>
-          <Orders orders={orders} />
+        <Grid item xs={12} md={6}>
+          <Orders orders={orders} setOrders={setOrders} />
         </Grid>
       </Grid>
     </Container>

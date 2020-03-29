@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import Typography from "@material-ui/core/Typography";
 import List from "@material-ui/core/List";
@@ -19,7 +19,78 @@ const Total = styled(ListItemText)`
   text-align: right;
 `;
 
-const Orders = ({ orders }) => {
+const Order = ({ id, order, onClick }) => {
+  const [isLoading, loading] = useState(false);
+  return (
+    <>
+      <ListItem>
+        <ListItemIcon>
+          <Fruits />
+        </ListItemIcon>
+        {order.withEggs && (
+          <ListItemIcon>
+            <Eggs />
+          </ListItemIcon>
+        )}
+        <ListItemText
+          primary={`${order.firstName} ${order.lastName}`}
+          secondary={order.email}
+        />
+        <Total
+          primary={`${total(order.withEggs, order.cartType)} €`}
+          primaryTypographyProps={{
+            style: {
+              fontSize: 22,
+              fontWeight: "bold",
+              marginRight: 10,
+            },
+          }}
+        />
+        <ListItemSecondaryAction>
+          {isLoading ? (
+            <CircularProgress color="secondary" size={18} />
+          ) : (
+            <IconButton
+              edge="end"
+              aria-label="delete"
+              onClick={async () => {
+                if (
+                  window.confirm(
+                    "Êtes-vous sûr de vouloir supprimer ce panier  ?"
+                  )
+                ) {
+                  loading(true);
+                  try {
+                    let data = await (
+                      await fetch("/order", {
+                        method: "DELETE",
+                        headers: {
+                          Accept: "application/json",
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ id }),
+                      })
+                    ).json();
+                    onClick(data);
+                  } catch (e) {
+                    console.error(e);
+                  } finally {
+                    loading(false);
+                  }
+                }
+              }}
+            >
+              <DeleteIcon />
+            </IconButton>
+          )}
+        </ListItemSecondaryAction>
+      </ListItem>
+      <Divider />
+    </>
+  );
+};
+
+const Orders = ({ orders, setOrders }) => {
   if (isEmpty(orders)) {
     return <CircularProgress color="secondary" />;
   }
@@ -29,42 +100,14 @@ const Orders = ({ orders }) => {
       <List dense>
         {orders.map(({ key, order }) => {
           return (
-            <>
-              <ListItem key={key}>
-                <ListItemIcon>
-                  <Fruits />
-                </ListItemIcon>
-                {order.withEggs && (
-                  <ListItemIcon>
-                    <Eggs />
-                  </ListItemIcon>
-                )}
-                <ListItemText
-                  primary={`${order.firstName} ${order.lastName}`}
-                  secondary={order.email}
-                />
-                <Total
-                  primary={`${total(order.withEggs, order.cartType)} €`}
-                  primaryTypographyProps={{
-                    style: {
-                      fontSize: 22,
-                      fontWeight: "bold",
-                      marginRight: 10,
-                    },
-                  }}
-                />
-                <ListItemSecondaryAction>
-                  <IconButton
-                    edge="end"
-                    aria-label="delete"
-                    onClick={console.log}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
-              <Divider />
-            </>
+            <Order
+              key={key}
+              id={key}
+              order={order}
+              onClick={(orders) => {
+                setOrders(orders);
+              }}
+            />
           );
         })}
       </List>

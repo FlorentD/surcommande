@@ -8,6 +8,7 @@ folder build
 get /api
 get /orders
 post /form
+delete /order
 
 @tables
 data

@@ -11,6 +11,7 @@ import map from "lodash/fp/map";
 import reduce from "lodash/fp/reduce";
 import isEmpty from "lodash/fp/isEmpty";
 import { total } from "./utils";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 const getTotal = (orders) => {
   return reduce((sum, { order }) => {
@@ -35,6 +36,9 @@ const getSizeForType = (orders, cartType) => {
 };
 
 const Resume = ({ orders }) => {
+  if (isEmpty(orders)) {
+    return <CircularProgress color="secondary" />;
+  }
   return (
     <Table size="small">
       <TableBody>

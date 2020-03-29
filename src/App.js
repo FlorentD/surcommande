@@ -13,6 +13,7 @@ import Divider from "@material-ui/core/Divider";
 import Box from "@material-ui/core/Box";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
+import CircularProgress from "@material-ui/core/CircularProgress";
 import TotalOrder from "./TotalOrder";
 import Resume from "./Resume";
 import Orders from "./Orders";
@@ -24,16 +25,22 @@ const ButtonBox = styled(Box)`
 
 const App = () => {
   const [orders, setOrders] = useState([]);
-  useEffect(() => {
-    let fetchData = async () => {
+  const [addLoading, setAddLoading] = useState(false);
+  let fetchData = async () => {
+    try {
       let data = await (await fetch("/orders")).json();
       setOrders(data);
-    };
+    } catch (e) {
+      console.error(e);
+    } finally {
+    }
+  };
+  useEffect(() => {
     fetchData();
   }, []);
   return (
     <Container>
-      <Grid container spacing={2}>
+      <Grid container spacing={8}>
         <Grid item xs={6}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
@@ -48,18 +55,24 @@ const App = () => {
                   cartType: "",
                 }}
                 onSubmit={async (values) => {
-                  await (
-                    await fetch("/form", {
-                      method: "POST",
-                      headers: {
-                        Accept: "application/json",
-                        "Content-Type": "application/json",
-                      },
-                      body: JSON.stringify(values),
-                    })
-                  ).json();
-                  let data = await (await fetch("/orders")).json();
-                  setOrders(data);
+                  setAddLoading(true);
+                  try {
+                    await (
+                      await fetch("/form", {
+                        method: "POST",
+                        headers: {
+                          Accept: "application/json",
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(values),
+                      })
+                    ).json();
+                    await fetchData();
+                  } catch (e) {
+                    console.error(e);
+                  } finally {
+                    setAddLoading(false);
+                  }
                 }}
               >
                 {({ handleSubmit, values, handleChange }) => {
@@ -67,26 +80,12 @@ const App = () => {
                   return (
                     <form noValidate onSubmit={handleSubmit}>
                       <Grid container spacing={2}>
-                        <Grid item xs={12}>
-                          <TextField
-                            id="email"
-                            name="email"
-                            type="email"
-                            label="Adresse email"
-                            size="large"
-                            margin="normal"
-                            variant="outlined"
-                            fullWidth
-                            onChange={handleChange}
-                          />
-                        </Grid>
                         <Grid item xs={6}>
                           <TextField
                             id="firstName"
                             name="firstName"
                             label="Prénom"
                             size="large"
-                            margin="normal"
                             variant="outlined"
                             fullWidth
                             onChange={handleChange}
@@ -98,7 +97,18 @@ const App = () => {
                             name="lastName"
                             label="Nom"
                             size="large"
-                            margin="normal"
+                            variant="outlined"
+                            fullWidth
+                            onChange={handleChange}
+                          />
+                        </Grid>
+                        <Grid item xs={12}>
+                          <TextField
+                            id="email"
+                            name="email"
+                            type="email"
+                            label="Adresse email"
+                            size="large"
                             variant="outlined"
                             fullWidth
                             onChange={handleChange}
@@ -153,7 +163,11 @@ const App = () => {
                               size="large"
                               startIcon={<ShoppingCartIcon />}
                             >
-                              Ajouter ce panier
+                              {addLoading ? (
+                                <CircularProgress color="secondary" />
+                              ) : (
+                                <Typography>Ajouter ce panier</Typography>
+                              )}
                               <TotalOrder
                                 cartType={values.cartType}
                                 withEggs={values.withEggs}

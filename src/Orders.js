@@ -9,11 +9,16 @@ import IconButton from "@material-ui/core/IconButton";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 import Divider from "@material-ui/core/Divider";
 import DeleteIcon from "@material-ui/icons/Delete";
+import TextField from "@material-ui/core/TextField";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import SearchIcon from "@material-ui/icons/Search";
 import Eggs from "./svg/Eggs";
 import Fruits from "./svg/Fruits";
 import { total } from "./utils";
 import isEmpty from "lodash/fp/isEmpty";
+import filter from "lodash/fp/filter";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import { Box } from "@material-ui/core";
 
 const Total = styled(ListItemText)`
   text-align: right;
@@ -90,15 +95,44 @@ const Order = ({ id, order, onClick }) => {
   );
 };
 
+const getFilteredOrders = (orders, setSearchFilter) => {
+  if (isEmpty(filter)) {
+    return orders;
+  }
+  return filter(
+    ({ order }) =>
+      `${order.firstName.toLowerCase()} ${order.lastName.toLowerCase()} ${order.email.toLowerCase()}`.indexOf(
+        setSearchFilter.toLowerCase()
+      ) !== -1
+  )(orders);
+};
+
 const Orders = ({ orders, setOrders }) => {
+  const [searchFilter, setSearchFilter] = useState("");
   if (isEmpty(orders)) {
     return <CircularProgress color="secondary" />;
   }
   return (
     <>
       <Typography variant="h3">Liste des commandes</Typography>
+      <Box mt={2} mb={2}>
+        <TextField
+          id="search-field"
+          placeholder="Chercher par nom, prénom, email..."
+          fullWidth
+          size="medium"
+          onChange={(event) => setSearchFilter(event.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Box>
       <List dense>
-        {orders.map(({ key, order }) => {
+        {getFilteredOrders(orders, searchFilter).map(({ key, order }) => {
           return (
             <Order
               key={key}

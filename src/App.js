@@ -90,7 +90,6 @@ const App = () => {
                 }}
               >
                 {({ handleSubmit, values, handleChange, errors, touched }) => {
-                  console.log(values);
                   return (
                     <form noValidate onSubmit={handleSubmit}>
                       <Grid container spacing={2}>
@@ -99,7 +98,7 @@ const App = () => {
                             id="firstName"
                             name="firstName"
                             label="Prénom"
-                            size="large"
+                            size="medium"
                             variant="outlined"
                             fullWidth
                             error={touched.firstName && errors.firstName}
@@ -112,7 +111,7 @@ const App = () => {
                             id="lastName"
                             name="lastName"
                             label="Nom"
-                            size="large"
+                            size="medium"
                             variant="outlined"
                             fullWidth
                             error={touched.lastName && errors.lastName}
@@ -126,7 +125,7 @@ const App = () => {
                             name="email"
                             type="email"
                             label="Adresse email"
-                            size="large"
+                            size="medium"
                             variant="outlined"
                             fullWidth
                             error={touched.email && errors.email}
@@ -134,7 +133,7 @@ const App = () => {
                             onChange={handleChange}
                           />
                         </Grid>
-                        <Grid xs={12}>
+                        <Grid item xs={12}>
                           <RadioGroup
                             aria-label="panier"
                             name="cartType"
@@ -178,10 +177,10 @@ const App = () => {
                             )}
                           </RadioGroup>
                         </Grid>
-                        <Grid xs={12}>
+                        <Grid item xs={12}>
                           <Divider light />
                         </Grid>
-                        <Grid xs={12}>
+                        <Grid item xs={12}>
                           <ButtonBox>
                             <Button
                               type="submit"

@@ -17,6 +17,7 @@ import Fruits from "./svg/Fruits";
 import { total } from "./utils";
 import isEmpty from "lodash/fp/isEmpty";
 import filter from "lodash/fp/filter";
+import sortBy from "lodash/fp/sortBy";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { Box } from "@material-ui/core";
 
@@ -96,15 +97,16 @@ const Order = ({ id, order, onClick }) => {
 };
 
 const getFilteredOrders = (orders, setSearchFilter) => {
+  const orderedOrders = sortBy(({ order }) => -order.createdAt)(orders);
   if (isEmpty(filter)) {
-    return orders;
+    return orderedOrders;
   }
   return filter(
     ({ order }) =>
       `${order.firstName.toLowerCase()} ${order.lastName.toLowerCase()} ${order.email.toLowerCase()}`.indexOf(
         setSearchFilter.toLowerCase()
       ) !== -1
-  )(orders);
+  )(orderedOrders);
 };
 
 const Orders = ({ orders, setOrders }) => {

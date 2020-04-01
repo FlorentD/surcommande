@@ -5,7 +5,7 @@ let parseBody = arc.http.helpers.bodyParser;
 
 exports.handler = async function http(request) {
   let body = parseBody(request);
-  await data.set({ table, order: body });
+  await data.set({ table, order: { ...body, createdAt: Date.now() } });
   return {
     headers: {
       "content-type": "application/json; charset=utf8",

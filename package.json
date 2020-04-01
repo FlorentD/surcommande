@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "proxy": "http://localhost:3333",
   "dependencies": {
-    "@material-ui/core": "^4.9.7",
+    "@material-ui/core": "^4.9.8",
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.47",
     "bootstrap": "^4.4.1",
@@ -12,6 +12,7 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
+    "react-transition-group": "4.3.0",
     "styled-components": "^5.0.1",
     "yup": "^0.28.3"
   },
@@ -41,7 +42,7 @@
     ]
   },
   "devDependencies": {
-    "@architect/sandbox": "^1.8.3",
+    "@architect/sandbox": "^1.9.1",
     "@begin/data": "^1.2.0",
     "cross-env": "^7.0.2",
     "npm-run-all": "^4.1.5",

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
 import Typography from "@material-ui/core/Typography";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
@@ -20,6 +21,23 @@ import filter from "lodash/fp/filter";
 import sortBy from "lodash/fp/sortBy";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { Box } from "@material-ui/core";
+
+const TransitionStyle = createGlobalStyle`
+    .order-enter {
+      opacity: 0;
+    }
+    .order-enter-active {
+      opacity: 1;
+      transition: opacity 200ms ease-in;
+    }
+    .order-exit {
+      opacity: 1;
+    }
+    .order-exit-active {
+      opacity: 0;
+      transition: opacity 200ms ease-in;
+    }
+`;
 
 const Total = styled(ListItemText)`
   text-align: right;
@@ -116,6 +134,7 @@ const Orders = ({ orders, setOrders }) => {
   }
   return (
     <>
+      <TransitionStyle />
       <Typography variant="h3">Liste des commandes</Typography>
       <Box mt={2} mb={2}>
         <TextField
@@ -134,18 +153,21 @@ const Orders = ({ orders, setOrders }) => {
         />
       </Box>
       <List dense>
-        {getFilteredOrders(orders, searchFilter).map(({ key, order }) => {
-          return (
-            <Order
-              key={key}
-              id={key}
-              order={order}
-              onClick={(orders) => {
-                setOrders(orders);
-              }}
-            />
-          );
-        })}
+        <TransitionGroup className="order-list">
+          {getFilteredOrders(orders, searchFilter).map(({ key, order }) => {
+            return (
+              <CSSTransition key={key} timeout={200} classNames="order">
+                <Order
+                  id={key}
+                  order={order}
+                  onClick={(orders) => {
+                    setOrders(orders);
+                  }}
+                />
+              </CSSTransition>
+            );
+          })}
+        </TransitionGroup>
       </List>
     </>
   );

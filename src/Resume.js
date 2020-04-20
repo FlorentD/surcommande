@@ -7,36 +7,35 @@ import Box from "@material-ui/core/Box";
 import size from "lodash/fp/size";
 import flow from "lodash/fp/flow";
 import filter from "lodash/fp/filter";
-import map from "lodash/fp/map";
 import reduce from "lodash/fp/reduce";
 import isEmpty from "lodash/fp/isEmpty";
 import { total } from "./utils";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import { useQuery } from "@apollo/react-hooks";
+import { GET_ORDERS } from "./api";
+import getOr from "lodash/fp/getOr";
 
 const getTotal = (orders) => {
-  return reduce((sum, { order }) => {
+  return reduce((sum, order) => {
     return sum + total(!isEmpty(order.withEggs), order.cartType);
   }, 0)(orders);
 };
 
 const getEggsSize = (orders) => {
   return flow(
-    map(({ order }) => order),
     filter(({ withEggs }) => withEggs),
     size
   )(orders);
 };
 
 const getSizeForType = (orders, cartType) => {
-  return flow(
-    map(({ order }) => order),
-    filter({ cartType }),
-    size
-  )(orders);
+  return flow(filter({ cartType }), size)(orders);
 };
 
-const Resume = ({ orders }) => {
-  if (isEmpty(orders)) {
+const Resume = () => {
+  const { loading, data } = useQuery(GET_ORDERS, { partialRefetch: true });
+  const orders = getOr([])("orders")(data);
+  if (loading) {
     return <CircularProgress color="secondary" />;
   }
   return (

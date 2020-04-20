@@ -21,6 +21,10 @@ import filter from "lodash/fp/filter";
 import sortBy from "lodash/fp/sortBy";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { Box } from "@material-ui/core";
+import { useMutation, useQuery } from "@apollo/react-hooks";
+import getOr from "lodash/fp/getOr";
+import { useAuth0 } from "./auth";
+import { DELETE_ORDER, GET_ORDERS } from "./api";
 
 const TransitionStyle = createGlobalStyle`
     .order-enter {
@@ -43,8 +47,12 @@ const Total = styled(ListItemText)`
   text-align: right;
 `;
 
-const Order = ({ id, order, onClick }) => {
-  const [isLoading, loading] = useState(false);
+const Order = ({ order }) => {
+  const { getIdTokenClaims } = useAuth0();
+  const [deleteOrder, { data, loading }] = useMutation(DELETE_ORDER, {
+    variables: { uuid: order.id },
+    refetchQueries: [{ query: GET_ORDERS }],
+  });
   return (
     <>
       <ListItem>
@@ -71,7 +79,7 @@ const Order = ({ id, order, onClick }) => {
           }}
         />
         <ListItemSecondaryAction>
-          {isLoading ? (
+          {loading ? (
             <CircularProgress color="secondary" size={18} />
           ) : (
             <IconButton
@@ -83,24 +91,15 @@ const Order = ({ id, order, onClick }) => {
                     "Êtes-vous sûr de vouloir supprimer ce panier  ?"
                   )
                 ) {
-                  loading(true);
-                  try {
-                    let data = await (
-                      await fetch("/order", {
-                        method: "DELETE",
-                        headers: {
-                          Accept: "application/json",
-                          "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ id }),
-                      })
-                    ).json();
-                    onClick(data);
-                  } catch (e) {
-                    console.error(e);
-                  } finally {
-                    loading(false);
-                  }
+                  const claims = await getIdTokenClaims();
+                  console.log(claims);
+                  await deleteOrder({
+                    context: {
+                      headers: {
+                        authorization: `Bearer ${claims.__raw}`,
+                      },
+                    },
+                  });
                 }
               }}
             >
@@ -115,21 +114,22 @@ const Order = ({ id, order, onClick }) => {
 };
 
 const getFilteredOrders = (orders, setSearchFilter) => {
-  const orderedOrders = sortBy(({ order }) => -order.createdAt)(orders);
+  const orderedOrders = sortBy(({ createdAt }) => -createdAt)(orders);
   if (isEmpty(filter)) {
     return orderedOrders;
   }
   return filter(
-    ({ order }) =>
+    (order) =>
       `${order.firstName.toLowerCase()} ${order.lastName.toLowerCase()} ${order.email.toLowerCase()}`.indexOf(
         setSearchFilter.toLowerCase()
       ) !== -1
   )(orderedOrders);
 };
 
-const Orders = ({ orders, setOrders }) => {
+const Orders = () => {
+  const { loading, data } = useQuery(GET_ORDERS, { partialRefetch: true });
   const [searchFilter, setSearchFilter] = useState("");
-  if (isEmpty(orders)) {
+  if (loading) {
     return <CircularProgress color="secondary" />;
   }
   return (
@@ -154,19 +154,15 @@ const Orders = ({ orders, setOrders }) => {
       </Box>
       <List dense>
         <TransitionGroup className="order-list">
-          {getFilteredOrders(orders, searchFilter).map(({ key, order }) => {
-            return (
-              <CSSTransition key={key} timeout={200} classNames="order">
-                <Order
-                  id={key}
-                  order={order}
-                  onClick={(orders) => {
-                    setOrders(orders);
-                  }}
-                />
-              </CSSTransition>
-            );
-          })}
+          {getFilteredOrders(getOr([])("orders")(data), searchFilter).map(
+            (order) => {
+              return (
+                <CSSTransition key={order.id} timeout={200} classNames="order">
+                  <Order order={order} />
+                </CSSTransition>
+              );
+            }
+          )}
         </TransitionGroup>
       </List>
     </>

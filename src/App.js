@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import { useMutation } from "@apollo/react-hooks";
 import styled from "styled-components";
 import { Formik } from "formik";
 import * as Yup from "yup";
@@ -19,6 +20,10 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import TotalOrder from "./TotalOrder";
 import Resume from "./Resume";
 import Orders from "./Orders";
+import { useAuth0 } from "./auth";
+import Login from "./Login";
+import Signup from "./Signup";
+import { ADD_ORDER, GET_ORDERS } from "./api";
 
 const ButtonBox = styled(Box)`
   text-align: center;
@@ -26,199 +31,195 @@ const ButtonBox = styled(Box)`
 `;
 
 const App = () => {
-  const [orders, setOrders] = useState([]);
-  const [addLoading, setAddLoading] = useState(false);
-  let fetchData = async () => {
-    try {
-      let data = await (await fetch("/orders")).json();
-      setOrders(data);
-    } catch (e) {
-      console.error(e);
-    } finally {
-    }
-  };
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const [addOrder, { loading }] = useMutation(ADD_ORDER, {
+    refetchQueries: [{ query: GET_ORDERS }],
+  });
+  const { getIdTokenClaims } = useAuth0();
   return (
     <Container>
-      <Grid container spacing={8}>
-        <Grid item xs={12} md={6}>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <Typography variant="h3">Créer un panier</Typography>
-            </Grid>
-            <Grid item xs={12}>
-              <Formik
-                initialValues={{
-                  email: "",
-                  firstName: "",
-                  lastName: "",
-                  cartType: "",
-                }}
-                validationSchema={Yup.object().shape({
-                  firstName: Yup.string().required("Le Prénom est requis"),
-                  lastName: Yup.string()
-                    .min(2, "Too Short!")
-                    .required("Le Nom est requis"),
-                  email: Yup.string()
-                    .email(`L'email semble invalide`)
-                    .required(`L'email est requis`),
-                  cartType: Yup.string().required(
-                    "N'oubliez pas de sélectionner un panier"
-                  ),
-                })}
-                onSubmit={async (values) => {
-                  setAddLoading(true);
-                  try {
-                    await (
-                      await fetch("/form", {
-                        method: "POST",
-                        headers: {
-                          Accept: "application/json",
-                          "Content-Type": "application/json",
+      <Login />
+      <Box mt={10}>
+        <Signup />
+        <Grid container spacing={8} mt={70}>
+          <Grid item xs={12} md={6}>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Typography variant="h3">Créer un panier</Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <Formik
+                  initialValues={{
+                    email: "",
+                    firstName: "",
+                    lastName: "",
+                    cartType: "",
+                  }}
+                  validationSchema={Yup.object().shape({
+                    firstName: Yup.string().required("Le Prénom est requis"),
+                    lastName: Yup.string()
+                      .min(2, "Too Short!")
+                      .required("Le Nom est requis"),
+                    email: Yup.string()
+                      .email(`L'email semble invalide`)
+                      .required(`L'email est requis`),
+                    cartType: Yup.string().required(
+                      "N'oubliez pas de sélectionner un panier"
+                    ),
+                  })}
+                  onSubmit={async (values) => {
+                    try {
+                      const claims = await getIdTokenClaims();
+                      console.log(claims.__raw);
+                      await addOrder({
+                        variables: { order: values },
+                        context: {
+                          headers: {
+                            authorization: `Bearer ${claims.__raw}`,
+                          },
                         },
-                        body: JSON.stringify(values),
-                      })
-                    ).json();
-                    await fetchData();
-                  } catch (e) {
-                    console.error(e);
-                  } finally {
-                    setAddLoading(false);
-                  }
-                }}
-              >
-                {({ handleSubmit, values, handleChange, errors, touched }) => {
-                  return (
-                    <form noValidate onSubmit={handleSubmit}>
-                      <Grid container spacing={2}>
-                        <Grid item xs={6}>
-                          <TextField
-                            id="firstName"
-                            name="firstName"
-                            label="Prénom"
-                            size="medium"
-                            variant="outlined"
-                            fullWidth
-                            error={touched.firstName && errors.firstName}
-                            helperText={errors.firstName}
-                            onChange={handleChange}
-                          />
-                        </Grid>
-                        <Grid item xs={6}>
-                          <TextField
-                            id="lastName"
-                            name="lastName"
-                            label="Nom"
-                            size="medium"
-                            variant="outlined"
-                            fullWidth
-                            error={touched.lastName && errors.lastName}
-                            helperText={errors.lastName}
-                            onChange={handleChange}
-                          />
-                        </Grid>
-                        <Grid item xs={12}>
-                          <TextField
-                            id="email"
-                            name="email"
-                            type="email"
-                            label="Adresse email"
-                            size="medium"
-                            variant="outlined"
-                            fullWidth
-                            error={touched.email && errors.email}
-                            helperText={errors.email}
-                            onChange={handleChange}
-                          />
-                        </Grid>
-                        <Grid item xs={12}>
-                          <RadioGroup
-                            aria-label="panier"
-                            name="cartType"
-                            onChange={handleChange}
-                            row
-                          >
-                            <Grid container>
-                              <Grid item xs={4}>
-                                <FormControlLabel
-                                  value="cart15"
-                                  control={<Radio />}
-                                  label="Panier à 15 €"
-                                />
-                              </Grid>
-                              <Grid item xs={4}>
-                                <FormControlLabel
-                                  value="cart20"
-                                  control={<Radio color="secondary" />}
-                                  label="Panier à 20 €"
-                                />
-                              </Grid>
-                              <Grid item xs={4}>
-                                <FormControlLabel
-                                  control={
-                                    <Switch
-                                      onChange={handleChange}
-                                      name="withEggs"
-                                      color="primary"
-                                    />
-                                  }
-                                  label="Avec des oeufs"
-                                />
-                              </Grid>
-                            </Grid>
-                            {errors.cartType && touched.cartType && (
-                              <Box mb={2}>
-                                <Alert severity="warning">
-                                  {errors.cartType}
-                                </Alert>
-                              </Box>
-                            )}
-                          </RadioGroup>
-                        </Grid>
-                        <Grid item xs={12}>
-                          <Divider light />
-                        </Grid>
-                        <Grid item xs={12}>
-                          <ButtonBox>
-                            <Button
-                              type="submit"
-                              variant="contained"
-                              color="primary"
-                              size="large"
-                              startIcon={<ShoppingCartIcon />}
+                      });
+                    } catch (e) {
+                      console.error(e);
+                    }
+                  }}
+                >
+                  {({
+                    handleSubmit,
+                    values,
+                    handleChange,
+                    errors,
+                    touched,
+                  }) => {
+                    return (
+                      <form noValidate onSubmit={handleSubmit}>
+                        <Grid container spacing={2}>
+                          <Grid item xs={6}>
+                            <TextField
+                              id="firstName"
+                              name="firstName"
+                              label="Prénom"
+                              size="medium"
+                              variant="outlined"
+                              fullWidth
+                              error={touched.firstName && errors.firstName}
+                              helperText={errors.firstName}
+                              onChange={handleChange}
+                            />
+                          </Grid>
+                          <Grid item xs={6}>
+                            <TextField
+                              id="lastName"
+                              name="lastName"
+                              label="Nom"
+                              size="medium"
+                              variant="outlined"
+                              fullWidth
+                              error={touched.lastName && errors.lastName}
+                              helperText={errors.lastName}
+                              onChange={handleChange}
+                            />
+                          </Grid>
+                          <Grid item xs={12}>
+                            <TextField
+                              id="email"
+                              name="email"
+                              type="email"
+                              label="Adresse email"
+                              size="medium"
+                              variant="outlined"
+                              fullWidth
+                              error={touched.email && errors.email}
+                              helperText={errors.email}
+                              onChange={handleChange}
+                            />
+                          </Grid>
+                          <Grid item xs={12}>
+                            <RadioGroup
+                              aria-label="panier"
+                              name="cartType"
+                              onChange={handleChange}
+                              row
                             >
-                              {addLoading ? (
-                                <CircularProgress color="secondary" />
-                              ) : (
-                                <Typography>Ajouter ce panier</Typography>
+                              <Grid container>
+                                <Grid item xs={4}>
+                                  <FormControlLabel
+                                    value="cart15"
+                                    control={<Radio />}
+                                    label="Panier à 15 €"
+                                  />
+                                </Grid>
+                                <Grid item xs={4}>
+                                  <FormControlLabel
+                                    value="cart20"
+                                    control={<Radio color="secondary" />}
+                                    label="Panier à 20 €"
+                                  />
+                                </Grid>
+                                <Grid item xs={4}>
+                                  <FormControlLabel
+                                    control={
+                                      <Switch
+                                        onChange={handleChange}
+                                        name="withEggs"
+                                        color="primary"
+                                      />
+                                    }
+                                    label="Avec des oeufs"
+                                  />
+                                </Grid>
+                              </Grid>
+                              {errors.cartType && touched.cartType && (
+                                <Box mb={2}>
+                                  <Alert severity="warning">
+                                    {errors.cartType}
+                                  </Alert>
+                                </Box>
                               )}
-                              <TotalOrder
-                                cartType={values.cartType}
-                                withEggs={values.withEggs}
-                              />
-                            </Button>
-                          </ButtonBox>
+                            </RadioGroup>
+                          </Grid>
+                          <Grid item xs={12}>
+                            <Divider light />
+                          </Grid>
+                          <Grid item xs={12}>
+                            <ButtonBox>
+                              <Button
+                                type="submit"
+                                variant="contained"
+                                color="primary"
+                                size="large"
+                                startIcon={<ShoppingCartIcon />}
+                              >
+                                {loading ? (
+                                  <CircularProgress color="secondary" />
+                                ) : (
+                                  <Typography>Ajouter ce panier</Typography>
+                                )}
+                                <TotalOrder
+                                  cartType={values.cartType}
+                                  withEggs={values.withEggs}
+                                />
+                              </Button>
+                            </ButtonBox>
+                          </Grid>
                         </Grid>
-                      </Grid>
-                    </form>
-                  );
-                }}
-              </Formik>
-            </Grid>
-            <Grid item xs={12}>
-              <Typography variant="h4">Résumé des commandes</Typography>
-            </Grid>
-            <Grid item xs={12}>
-              <Resume orders={orders} />
+                      </form>
+                    );
+                  }}
+                </Formik>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="h4">Résumé des commandes</Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <Resume />
+              </Grid>
             </Grid>
           </Grid>
+          <Grid item xs={12} md={6}>
+            <Orders />
+          </Grid>
         </Grid>
-        <Grid item xs={12} md={6}>
-          <Orders orders={orders} setOrders={setOrders} />
-        </Grid>
-      </Grid>
+      </Box>
     </Container>
   );
 };

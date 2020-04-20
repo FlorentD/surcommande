@@ -1,0 +1,356 @@
+# This file was generated based on ".graphqlconfig". Do not edit manually.
+
+schema {
+    query: query_root
+    mutation: mutation_root
+    subscription: subscription_root
+}
+
+"mutation root"
+type mutation_root {
+    "delete data from the table: \"orders\""
+    delete_orders(
+        "filter the rows which have to be deleted"
+        where: orders_bool_exp!
+    ): orders_mutation_response
+    "insert data into the table: \"orders\""
+    insert_orders(
+        "the rows to be inserted"
+        objects: [orders_insert_input!]!,
+        "on conflict condition"
+        on_conflict: orders_on_conflict
+    ): orders_mutation_response
+    "update data of the table: \"orders\""
+    update_orders(
+        "sets the columns of the filtered rows to the given values"
+        _set: orders_set_input,
+        "filter the rows which have to be updated"
+        where: orders_bool_exp!
+    ): orders_mutation_response
+}
+
+"columns and relationships of \"orders\""
+type orders {
+    cartType: String!
+    createdAt: timestamptz!
+    email: String!
+    firstName: String!
+    id: uuid!
+    lastName: String!
+    withEggs: Boolean!
+}
+
+"aggregated selection of \"orders\""
+type orders_aggregate {
+    aggregate: orders_aggregate_fields
+    nodes: [orders!]!
+}
+
+"aggregate fields of \"orders\""
+type orders_aggregate_fields {
+    count(columns: [orders_select_column!], distinct: Boolean): Int
+    max: orders_max_fields
+    min: orders_min_fields
+}
+
+"aggregate max on columns"
+type orders_max_fields {
+    cartType: String
+    createdAt: timestamptz
+    email: String
+    firstName: String
+    lastName: String
+}
+
+"aggregate min on columns"
+type orders_min_fields {
+    cartType: String
+    createdAt: timestamptz
+    email: String
+    firstName: String
+    lastName: String
+}
+
+"response of any mutation on the table \"orders\""
+type orders_mutation_response {
+    "number of affected rows by the mutation"
+    affected_rows: Int!
+    "data of the affected rows by the mutation"
+    returning: [orders!]!
+}
+
+"query root"
+type query_root {
+    "fetch data from the table: \"orders\""
+    orders(
+        "distinct select on columns"
+        distinct_on: [orders_select_column!],
+        "limit the number of rows returned"
+        limit: Int,
+        "skip the first n rows. Use only with order_by"
+        offset: Int,
+        "sort the rows by one or more columns"
+        order_by: [orders_order_by!],
+        "filter the rows returned"
+        where: orders_bool_exp
+    ): [orders!]!
+    "fetch aggregated fields from the table: \"orders\""
+    orders_aggregate(
+        "distinct select on columns"
+        distinct_on: [orders_select_column!],
+        "limit the number of rows returned"
+        limit: Int,
+        "skip the first n rows. Use only with order_by"
+        offset: Int,
+        "sort the rows by one or more columns"
+        order_by: [orders_order_by!],
+        "filter the rows returned"
+        where: orders_bool_exp
+    ): orders_aggregate!
+    "fetch data from the table: \"orders\" using primary key columns"
+    orders_by_pk(id: uuid!): orders
+}
+
+"subscription root"
+type subscription_root {
+    "fetch data from the table: \"orders\""
+    orders(
+        "distinct select on columns"
+        distinct_on: [orders_select_column!],
+        "limit the number of rows returned"
+        limit: Int,
+        "skip the first n rows. Use only with order_by"
+        offset: Int,
+        "sort the rows by one or more columns"
+        order_by: [orders_order_by!],
+        "filter the rows returned"
+        where: orders_bool_exp
+    ): [orders!]!
+    "fetch aggregated fields from the table: \"orders\""
+    orders_aggregate(
+        "distinct select on columns"
+        distinct_on: [orders_select_column!],
+        "limit the number of rows returned"
+        limit: Int,
+        "skip the first n rows. Use only with order_by"
+        offset: Int,
+        "sort the rows by one or more columns"
+        order_by: [orders_order_by!],
+        "filter the rows returned"
+        where: orders_bool_exp
+    ): orders_aggregate!
+    "fetch data from the table: \"orders\" using primary key columns"
+    orders_by_pk(id: uuid!): orders
+}
+
+"column ordering options"
+enum order_by {
+    "in the ascending order, nulls last"
+    asc
+    "in the ascending order, nulls first"
+    asc_nulls_first
+    "in the ascending order, nulls last"
+    asc_nulls_last
+    "in the descending order, nulls first"
+    desc
+    "in the descending order, nulls first"
+    desc_nulls_first
+    "in the descending order, nulls last"
+    desc_nulls_last
+}
+
+"unique or primary key constraints on table \"orders\""
+enum orders_constraint {
+    "unique or primary key constraint"
+    orders_pkey
+}
+
+"select columns of table \"orders\""
+enum orders_select_column {
+    "column name"
+    cartType
+    "column name"
+    createdAt
+    "column name"
+    email
+    "column name"
+    firstName
+    "column name"
+    id
+    "column name"
+    lastName
+    "column name"
+    withEggs
+}
+
+"update columns of table \"orders\""
+enum orders_update_column {
+    "column name"
+    cartType
+    "column name"
+    createdAt
+    "column name"
+    email
+    "column name"
+    firstName
+    "column name"
+    id
+    "column name"
+    lastName
+    "column name"
+    withEggs
+}
+
+"expression to compare columns of type Boolean. All fields are combined with logical 'AND'."
+input Boolean_comparison_exp {
+    _eq: Boolean
+    _gt: Boolean
+    _gte: Boolean
+    _in: [Boolean!]
+    _is_null: Boolean
+    _lt: Boolean
+    _lte: Boolean
+    _neq: Boolean
+    _nin: [Boolean!]
+}
+
+"expression to compare columns of type String. All fields are combined with logical 'AND'."
+input String_comparison_exp {
+    _eq: String
+    _gt: String
+    _gte: String
+    _ilike: String
+    _in: [String!]
+    _is_null: Boolean
+    _like: String
+    _lt: String
+    _lte: String
+    _neq: String
+    _nilike: String
+    _nin: [String!]
+    _nlike: String
+    _nsimilar: String
+    _similar: String
+}
+
+"order by aggregate values of table \"orders\""
+input orders_aggregate_order_by {
+    count: order_by
+    max: orders_max_order_by
+    min: orders_min_order_by
+}
+
+"input type for inserting array relation for remote table \"orders\""
+input orders_arr_rel_insert_input {
+    data: [orders_insert_input!]!
+    on_conflict: orders_on_conflict
+}
+
+"Boolean expression to filter rows from the table \"orders\". All fields are combined with a logical 'AND'."
+input orders_bool_exp {
+    _and: [orders_bool_exp]
+    _not: orders_bool_exp
+    _or: [orders_bool_exp]
+    cartType: String_comparison_exp
+    createdAt: timestamptz_comparison_exp
+    email: String_comparison_exp
+    firstName: String_comparison_exp
+    id: uuid_comparison_exp
+    lastName: String_comparison_exp
+    withEggs: Boolean_comparison_exp
+}
+
+"input type for inserting data into table \"orders\""
+input orders_insert_input {
+    cartType: String
+    createdAt: timestamptz
+    email: String
+    firstName: String
+    id: uuid
+    lastName: String
+    withEggs: Boolean
+}
+
+"order by max() on columns of table \"orders\""
+input orders_max_order_by {
+    cartType: order_by
+    createdAt: order_by
+    email: order_by
+    firstName: order_by
+    lastName: order_by
+}
+
+"order by min() on columns of table \"orders\""
+input orders_min_order_by {
+    cartType: order_by
+    createdAt: order_by
+    email: order_by
+    firstName: order_by
+    lastName: order_by
+}
+
+"input type for inserting object relation for remote table \"orders\""
+input orders_obj_rel_insert_input {
+    data: orders_insert_input!
+    on_conflict: orders_on_conflict
+}
+
+"on conflict condition type for table \"orders\""
+input orders_on_conflict {
+    constraint: orders_constraint!
+    update_columns: [orders_update_column!]!
+    where: orders_bool_exp
+}
+
+"ordering options when selecting data from \"orders\""
+input orders_order_by {
+    cartType: order_by
+    createdAt: order_by
+    email: order_by
+    firstName: order_by
+    id: order_by
+    lastName: order_by
+    withEggs: order_by
+}
+
+"input type for updating data in table \"orders\""
+input orders_set_input {
+    cartType: String
+    createdAt: timestamptz
+    email: String
+    firstName: String
+    id: uuid
+    lastName: String
+    withEggs: Boolean
+}
+
+"expression to compare columns of type timestamptz. All fields are combined with logical 'AND'."
+input timestamptz_comparison_exp {
+    _eq: timestamptz
+    _gt: timestamptz
+    _gte: timestamptz
+    _in: [timestamptz!]
+    _is_null: Boolean
+    _lt: timestamptz
+    _lte: timestamptz
+    _neq: timestamptz
+    _nin: [timestamptz!]
+}
+
+"expression to compare columns of type uuid. All fields are combined with logical 'AND'."
+input uuid_comparison_exp {
+    _eq: uuid
+    _gt: uuid
+    _gte: uuid
+    _in: [uuid!]
+    _is_null: Boolean
+    _lt: uuid
+    _lte: uuid
+    _neq: uuid
+    _nin: [uuid!]
+}
+
+
+scalar timestamptz
+
+scalar uuid

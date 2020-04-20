@@ -1,0 +1,8 @@
+{
+  "name": "post-signup",
+  "version": "1.0.0",
+  "dependencies": {
+    "axios": "0.19.2",
+    "@architect/functions": "3.8.1"
+  }
+}

@@ -10,7 +10,6 @@ import Switch from "@material-ui/core/Switch";
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
 import Button from "@material-ui/core/Button";
-import ShoppingCartIcon from "@material-ui/icons/ShoppingCart";
 import Divider from "@material-ui/core/Divider";
 import Box from "@material-ui/core/Box";
 import TextField from "@material-ui/core/TextField";
@@ -187,7 +186,6 @@ const App = () => {
                                 variant="contained"
                                 color="primary"
                                 size="large"
-                                startIcon={<ShoppingCartIcon />}
                               >
                                 {loading ? (
                                   <CircularProgress color="secondary" />

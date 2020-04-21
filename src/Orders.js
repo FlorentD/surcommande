@@ -9,10 +9,7 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import IconButton from "@material-ui/core/IconButton";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 import Divider from "@material-ui/core/Divider";
-import DeleteIcon from "@material-ui/icons/Delete";
 import TextField from "@material-ui/core/TextField";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import SearchIcon from "@material-ui/icons/Search";
 import Eggs from "./svg/Eggs";
 import Fruits from "./svg/Fruits";
 import { total } from "./utils";
@@ -103,7 +100,7 @@ const Order = ({ order }) => {
                 }
               }}
             >
-              <DeleteIcon />
+              Delete
             </IconButton>
           )}
         </ListItemSecondaryAction>
@@ -143,13 +140,6 @@ const Orders = () => {
           fullWidth
           size="medium"
           onChange={(event) => setSearchFilter(event.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
         />
       </Box>
       <List dense>

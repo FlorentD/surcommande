@@ -6,7 +6,6 @@ folder build
 
 @http
 get /api
-get /orders
 post /form
 post /signup
 delete /order
